@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OpenLink — Decentralized Emergency Messaging</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Vazirmatn:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#05050C}
+a{color:#A5B4FC;text-decoration:none}a:hover{color:#E0E7FF}
+.ol-grid-bg{background-image:linear-gradient(rgba(148,163,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,255,0.06) 1px,transparent 1px);background-size:56px 56px}
+.ol-btn{transition:transform .15s ease,box-shadow .2s ease,background .2s ease}
+.ol-btn:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(165,180,252,0.5),0 8px 32px rgba(99,102,241,0.45)}
+.ol-ghost:hover{background:rgba(255,255,255,0.10) !important}
+.ol-card{transition:border-color .2s ease,transform .2s ease}
+.ol-card:hover{border-color:rgba(129,140,248,0.45);transform:translateY(-2px)}
+.ol-link{color:#A8AECB}.ol-link:hover{color:#FFFFFF}
+.ol-node{cursor:pointer;transition:border-color .25s ease,background .25s ease,box-shadow .25s ease}
+.ol-track-fill{transition:width .5s cubic-bezier(.2,.8,.2,1)}
+[dir="rtl"] .ol-arrow{transform:scaleX(-1)}
+@keyframes olPulse{0%{box-shadow:0 0 0 0 rgba(6,182,212,0.55)}70%{box-shadow:0 0 0 14px rgba(6,182,212,0)}100%{box-shadow:0 0 0 0 rgba(6,182,212,0)}}
+.ol-pulse{animation:olPulse 1.8s ease-out infinite}
+@media (max-width: 960px){.ol-nav-links{display:none !important}}
+</style>
+</helmet>
+
+<div dir="{{dir}}" lang="{{lang}}" style="min-height: 100vh; background: #05050C; color: #E7E9F5; font-family: {{fontFamily}}; overflow-x: clip; position: relative">
+
+  <div style="position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 1200px; height: 900px; background: radial-gradient(closest-side, rgba(99,102,241,0.22), rgba(99,102,241,0)); pointer-events: none"></div>
+  <div style="position: absolute; top: 1500px; left: -300px; width: 900px; height: 900px; background: radial-gradient(closest-side, rgba(6,182,212,0.12), rgba(6,182,212,0)); pointer-events: none"></div>
+  <div style="position: absolute; top: 2900px; right: -300px; width: 1000px; height: 1000px; background: radial-gradient(closest-side, rgba(99,102,241,0.16), rgba(99,102,241,0)); pointer-events: none"></div>
+
+  <div style="position: relative; max-width: 1240px; margin: 0 auto; padding: 0 20px">
+
+    <!-- ===== NAVBAR ===== -->
+    <header style="position: sticky; top: 0; z-index: 50; margin: 0 -8px">
+      <div style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 16px; min-height: 76px; padding: 0 20px; border-radius: 0 0 26px 26px; border: 1px solid rgba(255,255,255,0.10); border-top: 0; background: linear-gradient(100deg, rgba(99,102,241,0.22), rgba(30,27,75,0.35) 35%, rgba(8,145,178,0.20) 70%, rgba(99,102,241,0.18)); background-color: rgba(12,12,28,0.62); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 10px 40px rgba(0,0,0,0.35)">
+        <a href="#top" aria-label="OpenLink" style="justify-self: start; display: flex; align-items: center; min-height: 44px">
+          <img src="./assets/db784b70ba6c02114b9980ad402e3cbe.png" alt="OpenLink" style="height: 32px; width: auto; display: block">
+        </a>
+        <nav class="ol-nav-links" style="display: flex; align-items: center; justify-content: center; gap: 40px; font-size: 15px; font-weight: 500">
+          <a class="ol-link" href="#architecture" style="color: #D2D6EA">{{t.navArch}}</a>
+          <a class="ol-link" href="#relays" style="color: #D2D6EA">{{t.navRelays}}</a>
+          <a class="ol-link" href="#gateways" style="color: #D2D6EA">{{t.navGateways}}</a>
+          <a class="ol-link" href="#threat-model" style="color: #D2D6EA">{{t.navThreat}}</a>
+        </nav>
+        <div style="justify-self: end; display: flex; align-items: center; gap: 10px">
+          <a class="ol-btn" href="#github" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: #FFFFFF; font-size: 14px; font-weight: 600">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"></path></svg>
+            {{t.viewGithub}}
+          </a>
+          <button class="ol-btn" type="button" onClick="{{toggleLang}}" aria-label="{{t.langAria}}" style="min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #F1F1F6; color: #14142B; font: 700 14px 'Inter', sans-serif; letter-spacing: 0.02em; cursor: pointer; display: inline-flex; align-items: center; gap: 8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14142B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"></path></svg>
+            {{t.langLabel}}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section id="top" class="ol-grid-bg" style="position: relative; margin-top: 24px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; padding: 88px 24px 48px; background-color: #0A0A1A">
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 70%; background: linear-gradient(180deg, rgba(10,10,26,0) 0%, rgba(79,70,229,0.45) 55%, rgba(6,182,212,0.55) 100%); pointer-events: none"></div>
+      <div style="position: absolute; left: 50%; bottom: -260px; transform: translateX(-50%); width: 900px; height: 520px; background: radial-gradient(closest-side, rgba(129,140,248,0.55), rgba(129,140,248,0)); pointer-events: none"></div>
+
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px">
+        <span style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; color: #C7CCE4">
+          <span class="ol-pulse" style="width: 8px; height: 8px; border-radius: 999px; background: #22D3EE"></span>
+          {{t.badge}}
+        </span>
+        <h1 style="margin: 0; max-width: 900px; font-size: clamp(38px, 6vw, 68px); line-height: {{headLine}}; font-weight: 600; letter-spacing: {{headTrack}}; color: #FFFFFF">{{t.heroTitle}}</h1>
+        <p style="margin: 0; max-width: 640px; font-size: 18px; line-height: 1.7; color: #B9BED6">{{t.heroSub}}</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 4px">
+          <a class="ol-btn" href="#contribute" style="display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 8px; padding-inline-start: 22px; border-radius: 999px; background: #FFFFFF; color: #0B0B1A; font-size: 15px; font-weight: 600">
+            {{t.ctaWhitepaper}}
+            <span style="width: 32px; height: 32px; border-radius: 999px; background: #4F46E5; display: flex; align-items: center; justify-content: center">
+              <svg class="ol-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            </span>
+          </a>
+          <a class="ol-btn ol-ghost" href="#relays" style="display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.18); color: #FFFFFF; font-size: 15px; font-weight: 500">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-8"></path><path d="M8.5 8.5a5 5 0 0 1 7 0M5.6 5.6a9 9 0 0 1 12.8 0"></path><circle cx="12" cy="12" r="1.4"></circle><path d="M8 20h8"></path></svg>
+            {{t.ctaDeploy}}
+          </a>
+        </div>
+
+        <div style="width: 100%; max-width: 1000px; margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px">
+          <sc-for list="{{metrics}}" as="m" hint-placeholder-count="3">
+            <div style="padding: 28px 24px; border-radius: 18px; background: rgba(10,10,30,0.45); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 32px; font-weight: 600; letter-spacing: -0.02em; color: #FFFFFF">{{m.value}}</div>
+              <div style="font-size: 14px; line-height: 1.6; color: #D2D6EA">{{m.label}}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CORE PILLARS ===== -->
+    <section id="architecture" style="padding: 128px 0 40px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+      <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #67E8F9">{{t.archEyebrow}}</span>
+      <h2 style="margin: 0; font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: {{headTrack}}; line-height: 1.3; color: #FFFFFF">{{t.archTitle}}</h2>
+      <p style="margin: 0; max-width: 580px; font-size: 16px; line-height: 1.7; color: #A8AECB">{{t.archSub}}</p>
+    </section>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+      <article class="ol-card" style="padding: 28px; border-radius: 20px; background: linear-gradient(160deg, rgba(99,102,241,0.12), rgba(255,255,255,0.02) 60%); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 14px">
+        <span style="width: 48px; height: 48px; border-radius: 14px; background: rgba(99,102,241,0.18); border: 1px solid rgba(129,140,248,0.4); display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C7D2FE" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"></rect><path d="M11 18.5h2"></path><path d="M3 9.5c-1 1.5-1 3.5 0 5M21 9.5c1 1.5 1 3.5 0 5"></path></svg>
+        </span>
+        <div style="font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">{{t.p1Tag}}</div>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: #FFFFFF">{{t.p1Title}}</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A8AECB">{{t.p1Body}}</p>
+      </article>
+      <article id="relays" class="ol-card" style="padding: 28px; border-radius: 20px; background: linear-gradient(160deg, rgba(56,189,248,0.10), rgba(255,255,255,0.02) 60%); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 14px">
+        <span style="width: 48px; height: 48px; border-radius: 14px; background: rgba(6,182,212,0.15); border: 1px solid rgba(34,211,238,0.4); display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5F3FC" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11"></path><path d="M9 21h6"></path><circle cx="12" cy="9" r="1.6"></circle><path d="M8.2 5.2a5.4 5.4 0 0 0 0 7.6M15.8 5.2a5.4 5.4 0 0 1 0 7.6M5.4 2.5a9.3 9.3 0 0 0 0 13M18.6 2.5a9.3 9.3 0 0 1 0 13"></path></svg>
+        </span>
+        <div style="font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">{{t.p2Tag}}</div>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: #FFFFFF">{{t.p2Title}}</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A8AECB">{{t.p2Body}}</p>
+      </article>
+      <article id="gateways" class="ol-card" style="padding: 28px; border-radius: 20px; background: linear-gradient(160deg, rgba(129,140,248,0.10), rgba(255,255,255,0.02) 60%); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 14px">
+        <span style="width: 48px; height: 48px; border-radius: 14px; background: rgba(99,102,241,0.18); border: 1px solid rgba(129,140,248,0.4); display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C7D2FE" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 13.5a7.5 7.5 0 0 0 6 6l-6-6z"></path><path d="M4.5 13.5l6 6M7.5 16.5l2-2"></path><path d="M14 3.5a6.5 6.5 0 0 1 6.5 6.5M14 7a3 3 0 0 1 3 3"></path><path d="M12 21h7"></path></svg>
+        </span>
+        <div style="font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">{{t.p3Tag}}</div>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: #FFFFFF">{{t.p3Title}}</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #A8AECB">{{t.p3Body}}</p>
+      </article>
+    </div>
+
+    <!-- ===== PACKET FLOW VISUALIZER ===== -->
+    <section style="margin-top: 120px; position: relative; border-radius: 28px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(99,102,241,0.10), rgba(10,10,26,0.6)); padding: clamp(24px, 4vw, 56px); display: flex; flex-direction: column; gap: 36px">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 580px">
+          <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #67E8F9">{{t.vizEyebrow}}</span>
+          <h2 style="margin: 0; font-size: clamp(30px, 3.6vw, 42px); font-weight: 600; letter-spacing: {{headTrack}}; color: #FFFFFF; line-height: 1.3">{{t.vizTitle}}</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #A8AECB">{{t.vizSub}}</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <button class="ol-btn" type="button" onClick="{{advance}}" style="min-height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #4F46E5; color: #FFFFFF; font: 600 15px {{fontFamily}}; cursor: pointer; display: inline-flex; align-items: center; gap: 10px">
+            <svg class="ol-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            {{primaryLabel}}
+          </button>
+          <button class="ol-ghost" type="button" onClick="{{reset}}" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: #E7E9F5; font: 500 15px {{fontFamily}}; cursor: pointer">{{t.reset}}</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">
+          <span>{{hopLine}}</span>
+          <span>{{stageLabel}}</span>
+        </div>
+        <div style="height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden">
+          <div class="ol-track-fill" style="height: 100%; width: {{progressW}}; border-radius: 999px; background: linear-gradient({{trackDir}}, #6366F1, #06B6D4); box-shadow: 0 0 18px rgba(6,182,212,0.6)"></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px">
+        <sc-for list="{{nodes}}" as="node" hint-placeholder-count="4">
+          <button class="ol-node" type="button" onClick="{{node.pick}}" style="{{node.cardStyle}}">
+            <span style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8F96B8">{{node.num}}</span>
+              <span style="{{node.badgeStyle}}">{{node.status}}</span>
+            </span>
+            <span style="font-size: 18px; font-weight: 600; color: #FFFFFF">{{node.label}}</span>
+            <span style="font-family: {{monoFont}}; font-size: 12px; color: #67E8F9">{{node.tech}}</span>
+            <span style="font-size: 14px; line-height: 1.65; color: #A8AECB">{{node.sees}}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+        <div style="padding: 24px; border-radius: 18px; background: rgba(5,5,14,0.7); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 15px; font-weight: 600; color: #FFFFFF">{{t.inspTitle}}</span>
+            <span style="font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">{{t.inspSize}}</span>
+          </div>
+          <div dir="ltr" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px">
+            <div style="width: 8%; background: #818CF8"></div>
+            <div style="width: 6%; background: #4F46E5"></div>
+            <div style="width: 78%; background: repeating-linear-gradient(45deg, #0E7490 0 6px, #155E75 6px 12px)"></div>
+            <div style="width: 8%; background: #22D3EE"></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-family: {{monoFont}}; font-size: 13px">
+            <span style="color: #8F96B8">{{t.rowHeader}}</span><span style="color: #C7D2FE">{{t.valReadable}}</span>
+            <span style="color: #8F96B8">{{t.rowNonce}}</span><span style="color: #C7D2FE">{{t.valRandom}}</span>
+            <span style="color: #8F96B8">{{t.rowPayload}}</span><span style="color: #67E8F9">{{t.valSealed}}</span>
+            <span style="color: #8F96B8">{{t.rowTag}}</span><span style="color: #67E8F9">{{t.valTamper}}</span>
+          </div>
+          <div dir="ltr" style="padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; color: #7E86A8; word-break: break-all">9f3a c107 e45b 2d88 1fa0 7c63 b2e9 04d1 5a8e f37c 61b0 9d24 c8e5 3f71 aa06 e92b 47d3 ...</div>
+        </div>
+        <div style="padding: 24px; border-radius: 18px; background: rgba(5,5,14,0.7); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 15px; font-weight: 600; color: #FFFFFF">{{t.hdrTitle}}</span>
+            <span style="font-family: {{monoFont}}; font-size: 12px; color: #8F96B8">{{t.hdrNote}}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+            <span style="color: #8F96B8">msg_id</span><span dir="ltr" style="color: #E7E9F5">0x7c2e91a4</span>
+            <span style="color: #8F96B8">hop_count</span><span dir="ltr" style="color: #E7E9F5">{{hopNow}} / 7</span>
+            <span style="color: #8F96B8">dest_hash</span><span dir="ltr" style="color: #E7E9F5">a41f…e09c</span>
+            <span style="color: #8F96B8">priority</span><span style="color: #FCA5A5">SOS</span>
+            <span style="color: #8F96B8">sender</span><span style="color: #7E86A8; font-family: {{monoFont}}">{{t.senderNone}}</span>
+          </div>
+          <div style="margin-top: auto; padding: 14px 16px; border-radius: 12px; background: rgba(99,102,241,0.10); border: 1px solid rgba(129,140,248,0.3); font-size: 14px; line-height: 1.65; color: #D6DAF0">{{caption}}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== THREAT MODEL ===== -->
+    <section id="threat-model" style="margin-top: 140px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 56px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #67E8F9">{{t.threatEyebrow}}</span>
+        <h2 style="margin: 0; font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: {{headTrack}}; line-height: 1.3; color: #FFFFFF">{{t.threatTitle}}</h2>
+        <p style="margin: 0; max-width: 540px; font-size: 16px; line-height: 1.7; color: #A8AECB">{{t.threatSub}}</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 26px 28px; margin-top: 8px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #FFFFFF">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path><path d="M3 21L21 3"></path></svg>
+              {{t.f1Title}}
+            </div>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #A8AECB">{{t.f1Body}}</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #FFFFFF">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1.5"></rect><rect x="14" y="4" width="7" height="16" rx="1.5"></rect><path d="M10 12h4" stroke-dasharray="1 2"></path></svg>
+              {{t.f2Title}}
+            </div>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #A8AECB">{{t.f2Body}}</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #FFFFFF">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h3l2-5 4 10 2-5h5"></path></svg>
+              {{t.f3Title}}
+            </div>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #A8AECB">{{t.f3Body}}</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: #FFFFFF">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"></path></svg>
+              {{t.f4Title}}
+            </div>
+            <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #A8AECB">{{t.f4Body}}</p>
+          </div>
+        </div>
+        <a class="ol-btn" href="#threat-model-doc" style="align-self: flex-start; margin-top: 8px; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 8px; padding-inline-start: 18px; border-radius: 999px; background: #4F46E5; color: #FFFFFF; font-size: 14px; font-weight: 600">
+          {{t.threatBtn}}
+          <span style="width: 28px; height: 28px; border-radius: 999px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+            <svg class="ol-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
+        </a>
+      </div>
+
+      <figure style="margin: 0; position: relative; height: 520px; display: flex; align-items: center; justify-content: center">
+        <div style="position: absolute; width: 480px; height: 480px; max-width: 100%; border-radius: 999px; border: 1px dashed rgba(129,140,248,0.25)"></div>
+        <div style="position: absolute; width: 350px; height: 350px; border-radius: 999px; border: 1px solid rgba(129,140,248,0.22); background: radial-gradient(closest-side, rgba(99,102,241,0.10), rgba(99,102,241,0))"></div>
+        <div style="position: absolute; width: 220px; height: 220px; border-radius: 999px; border: 1px solid rgba(34,211,238,0.3); background: radial-gradient(closest-side, rgba(6,182,212,0.18), rgba(6,182,212,0))"></div>
+        <div style="position: relative; width: 132px; height: 132px; border-radius: 999px; background: linear-gradient(145deg, #6366F1, #0891B2); box-shadow: 0 0 60px rgba(99,102,241,0.6), inset 0 0 0 1px rgba(255,255,255,0.25); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"></rect><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path><circle cx="12" cy="15.5" r="1.3"></circle></svg>
+          <span style="font-size: 12px; font-weight: 600; color: #FFFFFF; line-height: 1.3">{{t.coreLabel}}</span>
+        </div>
+        <div style="position: absolute; top: 18px; left: 50%; transform: translateX(-50%); padding: 10px 14px; border-radius: 12px; background: rgba(12,12,30,0.85); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 500; color: #E7E9F5; white-space: nowrap">{{t.ring1}}</div>
+        <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); padding: 10px 14px; border-radius: 12px; background: rgba(12,12,30,0.85); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 500; color: #E7E9F5; white-space: nowrap">{{t.ring2}}</div>
+        <div style="position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); padding: 10px 14px; border-radius: 12px; background: rgba(12,12,30,0.85); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 500; color: #E7E9F5; white-space: nowrap">{{t.ring3}}</div>
+        <div style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); padding: 10px 14px; border-radius: 12px; background: rgba(12,12,30,0.85); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 500; color: #E7E9F5; white-space: nowrap">{{t.ring4}}</div>
+        <div style="position: absolute; top: 116px; left: 64px; width: 12px; height: 12px; border-radius: 999px; background: #22D3EE; box-shadow: 0 0 14px #22D3EE"></div>
+        <div style="position: absolute; bottom: 120px; right: 70px; width: 10px; height: 10px; border-radius: 999px; background: #818CF8; box-shadow: 0 0 14px #818CF8"></div>
+        <div style="position: absolute; top: 140px; right: 96px; width: 8px; height: 8px; border-radius: 999px; background: #A5B4FC"></div>
+        <figcaption style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">{{t.figCaption}}</figcaption>
+      </figure>
+    </section>
+
+    <!-- ===== HARDWARE & ECOSYSTEM ===== -->
+    <section style="margin-top: 140px; display: flex; flex-direction: column; gap: 32px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #67E8F9">{{t.hwEyebrow}}</span>
+          <h2 style="margin: 0; font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: {{headTrack}}; line-height: 1.3; color: #FFFFFF">{{t.hwTitle}}</h2>
+        </div>
+        <a class="ol-link" href="#hardware-guide" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 500">
+          {{t.hwLink}}
+          <svg class="ol-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">
+        <sc-for list="{{partners}}" as="p" hint-placeholder-count="6">
+          <div class="ol-card" style="height: 120px; border-radius: 18px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px">
+            <span dir="ltr" style="{{p.nameStyle}}">{{p.name}}</span>
+            <span style="font-family: {{monoFont}}; font-size: 11px; letter-spacing: 0.04em; color: #8F96B8">{{p.role}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.7; color: #7E86A8; text-align: center">{{t.hwNote}}</p>
+    </section>
+
+    <!-- ===== BOTTOM CTA ===== -->
+    <section id="github" class="ol-grid-bg" style="margin-top: 140px; position: relative; overflow: hidden; border-radius: 28px; border: 1px solid rgba(255,255,255,0.10); background-color: #0A0A1A; padding: clamp(56px, 8vw, 100px) 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 28px">
+      <div style="position: absolute; left: 50%; bottom: -220px; transform: translateX(-50%); width: 900px; height: 440px; background: radial-gradient(closest-side, rgba(99,102,241,0.5), rgba(6,182,212,0.12), rgba(6,182,212,0)); pointer-events: none"></div>
+      <h2 style="position: relative; margin: 0; max-width: 800px; font-size: clamp(32px, 4.6vw, 54px); font-weight: 600; letter-spacing: {{headTrack}}; line-height: 1.3; color: #FFFFFF"><span style="color: #A5B4FC">{{t.ctaHl1}}</span>{{t.ctaMid}}<span style="color: #67E8F9">{{t.ctaHl2}}</span>{{t.ctaEnd}}</h2>
+      <p style="position: relative; margin: 0; max-width: 540px; font-size: 16px; line-height: 1.7; color: #B9BED6">{{t.ctaSub}}</p>
+      <a class="ol-btn" href="#github" style="position: relative; display: inline-flex; align-items: center; gap: 10px; min-height: 50px; padding: 0 8px; padding-inline-start: 24px; border-radius: 999px; background: #FFFFFF; color: #0B0B1A; font-size: 15px; font-weight: 600">
+        {{t.ctaBtn}}
+        <span style="width: 34px; height: 34px; border-radius: 999px; background: #4F46E5; display: flex; align-items: center; justify-content: center">
+          <svg class="ol-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </span>
+      </a>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer style="margin-top: 96px; padding: 48px 0 40px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 40px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <img src="./assets/db784b70ba6c02114b9980ad402e3cbe.png" alt="OpenLink" style="height: 30px; width: auto; align-self: flex-start">
+          <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #8F96B8">{{t.footTag}}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px">
+          <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.1em; color: #7E86A8">{{t.colProject}}</span>
+          <a class="ol-link" href="#github">{{t.lRepo}}</a>
+          <a class="ol-link" href="#docs">{{t.lDocs}}</a>
+          <a class="ol-link" href="#whitepaper">{{t.lWhitepaper}}</a>
+          <a class="ol-link" href="#releases">{{t.lReleases}}</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px">
+          <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.1em; color: #7E86A8">{{t.colSecurity}}</span>
+          <a class="ol-link" href="#threat-model">{{t.lThreat}}</a>
+          <a class="ol-link" href="#disclaimer">{{t.lDisclaimer}}</a>
+          <a class="ol-link" href="#disclosure">{{t.lDisclosure}}</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px">
+          <span style="font-family: {{monoFont}}; font-size: 12px; letter-spacing: 0.1em; color: #7E86A8">{{t.colCommunity}}</span>
+          <a class="ol-link" href="#discussions">{{t.lDiscussions}}</a>
+          <a class="ol-link" href="#contribute">{{t.lContribute}}</a>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: #7E86A8">
+        <span>{{t.copyright}}</span>
+        <span>{{t.noTrackers}}</span>
+      </div>
+    </footer>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["en","fa"],"default":"en"},"$preview":{"width":1440,"height":5600}}'>
+class Component extends DCLogic {
+  dict() { return {
+  en: {
+    navArch: "Architecture", navRelays: "LoRa Relays", navGateways: "Satellite Gateways", navThreat: "Threat Model", navGithub: "GitHub",
+    langLabel: "FA", langAria: "Switch page to Persian", viewGithub: "GitHub",
+    badge: "Open-source · Offline-first · End-to-end encrypted",
+    heroTitle: "Messaging Built to Survive the Blackout",
+    heroSub: "End-to-end encrypted peer-to-peer communication designed for total communication blackouts. Powered by citizen radio relays and isolated gateways.",
+    ctaWhitepaper: "Contribute & Collaborate", ctaDeploy: "Deploy a Node",
+    m1v: "0 Server Footprint", m1l: "100% peer-to-peer & end-to-end encrypted",
+    m2v: "<250 Bytes", m2l: "Ultra-compact packets built for radio airtime",
+    m3v: "~300 Relays (early estimate)", m3l: "Unverified projection to cover a metro like Tehran — not yet field-tested",
+    archEyebrow: "Architecture", archTitle: "Three Layers. No Single Point of Failure.",
+    archSub: "Each layer works on its own and gets stronger with the others. When one link breaks, packets find another path.",
+    p1Tag: "LAYER 01 · METERS", p1Title: "Local Bluetooth Mesh",
+    p1Body: "Store-Carry-Forward transport. Phones hold encrypted packets and hand them to peers as pedestrians move through the city — no towers, no Wi-Fi.",
+    p2Tag: "LAYER 02 · KILOMETERS", p2Title: "Long-Range LoRa Relays",
+    p2Body: "Neighborhood-to-neighborhood packet forwarding on $15–25 open-source radio hardware, run by citizens from rooftops and balconies. Meshtastic-compatible.",
+    p3Tag: "LAYER 03 · GLOBAL", p3Title: "Isolated Satellite Gateways",
+    p3Body: "Bridges offline mesh packets to Starlink on a hardware-isolated segment — hosts never expose their LAN, devices or Wi-Fi passwords.",
+    vizEyebrow: "Mesh Packet Flow Visualizer", vizTitle: "Follow an SOS Packet Across the Mesh",
+    vizSub: "A 200-byte encrypted message hops from a phone to the open internet. Every relay sees only the routing header — never who wrote it or what it says.",
+    btnSend: "Send SOS packet", btnNext: "Forward to next hop", btnReplay: "Replay", reset: "Reset",
+    hop: "HOP", stages: ["READY", "ON DEVICE", "NEIGHBORHOOD", "BACKBONE", "UPLINKED"],
+    stHolding: "HOLDING", stDone: "FORWARDED", stWaiting: "WAITING",
+    nodes: [
+      { label: "Phone", tech: "BLE 5.0 · store-carry-forward", sees: "Seals the SOS with the recipient’s key, then carries it until a peer or relay is in range." },
+      { label: "Local Relay", tech: "LoRa · rooftop node", sees: "Reads the routing header only. The 156-byte payload stays sealed." },
+      { label: "Backbone Relay", tech: "LoRa · high-site node", sees: "Checks the message ID, drops duplicates, increments the hop count." },
+      { label: "Gateway", tech: "Starlink · isolated segment", sees: "Forwards ciphertext upstream. The host’s home network is never touched." }
+    ],
+    captions: [
+      "Press “Send SOS packet” or tap any node to watch the packet move.",
+      "Encrypted on the phone. Only the recipient’s key can open the payload — the phone keeps no copy of the route.",
+      "The local relay sees a msg_id and a hop count. It cannot tell who sent the message or what it says.",
+      "The backbone relay has seen this msg_id before from another path, so the duplicate copy is dropped to save airtime.",
+      "Delivered to the internet as opaque ciphertext. No relay along the way could read it."
+    ],
+    inspTitle: "Packet as a relay sees it", inspSize: "200 B",
+    rowHeader: "header · 16 B", valReadable: "readable", rowNonce: "nonce · 12 B", valRandom: "random",
+    rowPayload: "payload · 156 B", valSealed: "sealed", rowTag: "auth tag · 16 B", valTamper: "tamper-proof",
+    hdrTitle: "Routing header", hdrNote: "visible to relays", senderNone: "— not included —",
+    threatEyebrow: "Security & Threat Model", threatTitle: "Built to Protect the People Who Host It",
+    threatSub: "A relay on a balcony shouldn’t put its owner at risk. OpenLink is designed so that nothing worth seizing ever sits on a node — though radio transmissions can still be detected. This is isolation, not invisibility.",
+    f1Title: "Minimal, Short-Lived Metadata", f1Body: "Relays keep only short-lived message IDs for deduplication. No sender, no contact list, no logs.",
+    f2Title: "Hardware-Level LAN Isolation", f2Body: "Gateways run on a separate segment. The host’s home network and Wi-Fi credentials are never reachable.",
+    f3Title: "Hop Limit & Deduplication", f3Body: "Every packet carries a hop cap and a unique ID, so floods die out instead of jamming shared radio airtime.",
+    f4Title: "Full Open-Source Transparency", f4Body: "Firmware, apps and protocol specs are public. Anyone can audit, fork, and build their own hardware.",
+    threatBtn: "Read the Threat Model", coreLabel: "Your message",
+    ring1: "Minimal Metadata", ring2: "LAN Isolation", ring3: "Hop Limit · Dedup", ring4: "Open Source",
+    figCaption: "Four protective layers surround the encrypted message: zero metadata, LAN isolation, hop limit with deduplication, and open source.",
+    hwEyebrow: "Hardware & Ecosystem", hwTitle: "Runs on Hardware You Can Buy Today", hwLink: "Browse the hardware guide",
+    hwRoles: ["PROTOCOL COMPATIBLE", "RELAY MICROCONTROLLER", "SX1262 RADIO", "PHONE MESH LAYER", "OPEN SOURCE HOME", "GATEWAY UPLINK"],
+    hwNote: "Names shown for hardware compatibility only. OpenLink is an independent project and is not affiliated with or endorsed by these organizations.",
+    ctaHl1: "Be Prepared", ctaMid: " for the Blackout. Build the ", ctaHl2: "Citizen Mesh", ctaEnd: ".",
+    ctaSub: "Flash a relay or host a gateway. Every node makes the network harder to silence.",
+    ctaBtn: "Get Started on GitHub",
+    footTag: "Open-source emergency messaging for communities that refuse to go dark.",
+    colProject: "PROJECT", lRepo: "GitHub Repository", lDocs: "Documentation", lWhitepaper: "Whitepaper", lReleases: "Releases",
+    colSecurity: "SECURITY", lThreat: "Threat Model", lDisclaimer: "Threat Model Disclaimer", lDisclosure: "Responsible Disclosure",
+    colCommunity: "COMMUNITY", lDiscussions: "Discussions", lMatrix: "Matrix Chat", lContribute: "Contribute", lTranslate: "Translate · ترجمه",
+    copyright: "© 2026 OpenLink contributors", noTrackers: "No trackers. No analytics. No cookies."
+  },
+  fa: {
+    navArch: "معماری", navRelays: "رله‌های LoRa", navGateways: "گیت‌وی ماهواره‌ای", navThreat: "مدل تهدید", navGithub: "گیت‌هاب",
+    langLabel: "EN", langAria: "Switch page to English", viewGithub: "گیت‌هاب",
+    badge: "متن‌باز · بدون نیاز به اینترنت · رمزگذاری سرتاسری",
+    heroTitle: "پیام‌رسانی که برای روزهای قطع اینترنت ساخته شده",
+    heroSub: "ارتباط مستقیم بین کاربران با رمزگذاری سرتاسری، ساخته‌شده برای روزهایی که اینترنت و ارتباطات به‌کلی قطع می‌شوند. با تکیه بر رله‌های رادیویی مردمی و گیت‌وی‌های ایزوله.",
+    ctaWhitepaper: "مشارکت و همکاری", ctaDeploy: "راه‌اندازی نود",
+    m1v: "بدون هیچ سروری", m1l: "کاملاً همتابه‌همتا، با رمزگذاری سرتاسری",
+    m2v: "کمتر از ۲۵۰ بایت", m2l: "پیام‌های بسیار کم‌حجم، مناسب ارسال رادیویی",
+    m3v: "حدود ۳۰۰ رله (تخمین اولیه)", m3l: "برآورد تأییدنشده برای پوشش شهری به بزرگی تهران — هنوز در میدان آزمایش نشده",
+    archEyebrow: "معماری", archTitle: "سه لایه، بدون هیچ نقطه‌ی ضعف مرکزی",
+    archSub: "هر لایه مستقل کار می‌کند و کنار بقیه قوی‌تر می‌شود. اگر یک مسیر قطع شود، پیام از راه دیگری می‌رود.",
+    p1Tag: "لایه‌ی ۱ · برد چند متری", p1Title: "شبکه‌ی بلوتوثی محلی",
+    p1Body: "پیام‌ها دست‌به‌دست می‌شوند: هر گوشی پیام رمزگذاری‌شده را نگه می‌دارد و وقتی به گوشی دیگری نزدیک شد، تحویلش می‌دهد. همین‌طور که مردم در شهر رفت‌وآمد می‌کنند، پیام هم جلو می‌رود؛ بدون آنتن و بدون وای‌فای.",
+    p2Tag: "لایه‌ی ۲ · برد چند کیلومتری", p2Title: "رله‌های LoRa با برد بلند",
+    p2Body: "پیام‌ها را از یک محله به محله‌ی دیگر می‌رسانند. سخت‌افزارش متن‌باز است و فقط ۱۵ تا ۲۵ دلار خرج دارد و مردم خودشان آن را روی پشت‌بام یا بالکن نصب می‌کنند. سازگار با Meshtastic.",
+    p3Tag: "لایه‌ی ۳ · سراسری", p3Title: "گیت‌وی‌های ماهواره‌ای ایزوله",
+    p3Body: "پیام‌های شبکه را از طریق استارلینک به اینترنت می‌رسانند، آن هم روی یک بخش سخت‌افزاری کاملاً جدا. شبکه‌ی خانگی، دستگاه‌ها و رمز وای‌فای میزبان هیچ‌وقت در دسترس قرار نمی‌گیرند.",
+    vizEyebrow: "شبیه‌ساز مسیر پیام", vizTitle: "ببینید یک پیام SOS چطور در شبکه جابه‌جا می‌شود",
+    vizSub: "یک پیام رمزگذاری‌شده‌ی ۲۰۰ بایتی، قدم‌به‌قدم از گوشی به اینترنت می‌رسد. هر رله فقط اطلاعات مسیریابی را می‌بیند؛ نه فرستنده را می‌شناسد و نه متن پیام را.",
+    btnSend: "ارسال پیام SOS", btnNext: "مرحله‌ی بعد", btnReplay: "دوباره نشان بده", reset: "از اول",
+    hop: "پرش", stages: ["آماده", "روی گوشی", "در محله", "شبکه‌ی اصلی", "رسید به اینترنت"],
+    stHolding: "پیام اینجاست", stDone: "ارسال شد", stWaiting: "منتظر",
+    nodes: [
+      { label: "گوشی", tech: "BLE 5.0 · دست‌به‌دست", sees: "پیام را با کلید گیرنده رمزگذاری می‌کند و نگهش می‌دارد تا به یک گوشی یا رله‌ی دیگر برسد." },
+      { label: "رله‌ی محله", tech: "LoRa · روی پشت‌بام", sees: "فقط اطلاعات مسیریابی را می‌خواند. متن ۱۵۶ بایتی پیام قفل می‌ماند." },
+      { label: "رله‌ی اصلی", tech: "LoRa · در نقطه‌ای مرتفع", sees: "شناسه‌ی پیام را چک می‌کند، نسخه‌های تکراری را دور می‌ریزد و یکی به تعداد پرش‌ها اضافه می‌کند." },
+      { label: "گیت‌وی", tech: "استارلینک · شبکه‌ی جدا", sees: "پیام رمزگذاری‌شده را به اینترنت می‌فرستد، بدون این‌که به شبکه‌ی خانگی میزبان دست بزند." }
+    ],
+    captions: [
+      "روی «ارسال پیام SOS» بزنید یا یکی از مرحله‌ها را انتخاب کنید تا مسیر پیام را ببینید.",
+      "پیام روی خود گوشی رمزگذاری شد. فقط گیرنده می‌تواند بازش کند و گوشی هیچ ردی از مسیر نگه نمی‌دارد.",
+      "رله‌ی محله فقط یک شناسه و تعداد پرش‌ها را می‌بیند. نمی‌داند پیام از طرف کیست یا در آن چه نوشته شده.",
+      "این پیام قبلاً از مسیر دیگری به رله‌ی اصلی رسیده، پس نسخه‌ی تکراری دور ریخته می‌شود تا فرکانس بی‌دلیل شلوغ نشود.",
+      "پیام به‌صورت رمزگذاری‌شده به اینترنت رسید. هیچ‌کدام از رله‌های مسیر نتوانستند آن را بخوانند."
+    ],
+    inspTitle: "پیام از نگاه یک رله", inspSize: "۲۰۰ بایت",
+    rowHeader: "سربرگ · ۱۶ بایت", valReadable: "قابل خواندن", rowNonce: "نانس · ۱۲ بایت", valRandom: "تصادفی",
+    rowPayload: "متن پیام · ۱۵۶ بایت", valSealed: "قفل‌شده", rowTag: "کد اصالت · ۱۶ بایت", valTamper: "غیرقابل دستکاری",
+    hdrTitle: "اطلاعات مسیریابی", hdrNote: "برای رله‌ها قابل مشاهده", senderNone: "— ثبت نمی‌شود —",
+    threatEyebrow: "امنیت و مدل تهدید", threatTitle: "طراحی‌شده برای امنیت کسانی که میزبان شبکه‌اند",
+    threatSub: "کسی که روی بالکنش یک رله گذاشته نباید به خاطرش به دردسر بیفتد. OpenLink طوری ساخته شده که روی هیچ نودی چیزی به درد بخور برای ضبط و بررسی پیدا نشود — با این حال، ارسال رادیویی همچنان ممکن است قابل‌شناسایی باشد. این جداسازی است، نه نامرئی‌بودن.",
+    f1Title: "حداقل اطلاعات جانبی، فقط کوتاه‌مدت", f1Body: "رله‌ها فقط شناسه‌ی پیام‌ها را برای مدت کوتاهی نگه می‌دارند تا پیام تکراری نفرستند. نه اسم فرستنده، نه فهرست مخاطب، نه هیچ لاگی.",
+    f2Title: "جداسازی کامل از شبکه‌ی خانگی", f2Body: "گیت‌وی روی یک شبکه‌ی جدا کار می‌کند. هیچ راهی به شبکه‌ی خانگی یا رمز وای‌فای میزبان وجود ندارد.",
+    f3Title: "محدودیت پرش و حذف پیام تکراری", f3Body: "هر پیام یک شناسه‌ی یکتا و سقف مشخصی برای تعداد پرش دارد؛ پس پیام‌ها بی‌پایان در شبکه نمی‌چرخند و فرکانس رادیویی شلوغ نمی‌شود.",
+    f4Title: "کاملاً متن‌باز", f4Body: "فِرم‌ور، اپلیکیشن‌ها و پروتکل همه در دسترس عموم‌اند. هر کسی می‌تواند کد را بررسی کند، نسخه‌ی خودش را بسازد یا سخت‌افزارش را خودش سرهم کند.",
+    threatBtn: "خواندن مدل تهدید", coreLabel: "پیام شما",
+    ring1: "حداقل اطلاعات", ring2: "جداسازی شبکه", ring3: "محدودیت پرش", ring4: "متن‌باز",
+    figCaption: "چهار لایه‌ی محافظ دور پیام رمزگذاری‌شده: بدون ذخیره‌ی اطلاعات، جداسازی شبکه، محدودیت پرش و متن‌باز بودن.",
+    hwEyebrow: "سخت‌افزار و اکوسیستم", hwTitle: "با سخت‌افزارهایی کار می‌کند که همین حالا در بازار هست", hwLink: "راهنمای سخت‌افزار",
+    hwRoles: ["سازگار با پروتکل", "میکروکنترلر رله", "ماژول رادیویی SX1262", "شبکه‌ی بین گوشی‌ها", "محل کد پروژه", "اتصال گیت‌وی به اینترنت"],
+    hwNote: "این نام‌ها فقط برای نشان دادن سازگاری سخت‌افزاری آمده‌اند. OpenLink یک پروژه‌ی مستقل است و هیچ ارتباط یا همکاری رسمی با این شرکت‌ها ندارد.",
+    ctaHl1: "برای قطعی آماده باشید.", ctaMid: " ", ctaHl2: "شبکه‌ی مردمی", ctaEnd: " را با هم بسازیم.",
+    ctaSub: "یک رله راه بیندازید یا میزبان گیت‌وی شوید. هر نود تازه، قطع کردن این شبکه را سخت‌تر می‌کند.",
+    ctaBtn: "شروع در گیت‌هاب",
+    footTag: "پیام‌رسان اضطراری و متن‌باز، برای وقتی که همه‌چیز قطع است.",
+    colProject: "پروژه", lRepo: "مخزن گیت‌هاب", lDocs: "مستندات", lWhitepaper: "وایت‌پیپر", lReleases: "نسخه‌ها",
+    colSecurity: "امنیت", lThreat: "مدل تهدید", lDisclaimer: "محدودیت‌های امنیتی", lDisclosure: "گزارش آسیب‌پذیری",
+    colCommunity: "جامعه", lDiscussions: "بحث و گفت‌وگو", lMatrix: "گروه Matrix", lContribute: "مشارکت در پروژه", lTranslate: "ترجمه · Translate",
+    copyright: "© ۲۰۲۶ مشارکت‌کنندگان OpenLink", noTrackers: "بدون ردیاب، بدون آمار بازدید، بدون کوکی."
+  }
+  }; }
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, lang: null };
+  }
+  renderVals() {
+    var self = this;
+    var s = this.state.step;
+    var lang = this.state.lang || this.props.lang || 'en';
+    var fa = lang === 'fa';
+    var D = this.dict();
+    var t = D[lang] || D.en;
+    var faNum = function (n) { return fa ? String(n).replace(/[0-9]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }) : String(n); };
+    var font = fa ? "'Vazirmatn', 'Inter', system-ui, sans-serif" : "'Inter', 'Vazirmatn', system-ui, sans-serif";
+    var mono = fa ? "'Vazirmatn', 'JetBrains Mono', monospace" : "'JetBrains Mono', monospace";
+    var base = 'all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 18px; min-height: 190px; text-align: start; font-family: ' + font + '; ';
+    var nodes = t.nodes.map(function (d, i) {
+      var st = s === i + 1 ? 'active' : (s > i + 1 ? 'done' : 'idle');
+      var card = base + (st === 'active'
+        ? 'background: rgba(6,182,212,0.12); border: 1px solid rgba(34,211,238,0.7); box-shadow: 0 0 0 4px rgba(6,182,212,0.12), 0 12px 40px rgba(6,182,212,0.25);'
+        : st === 'done'
+          ? 'background: rgba(99,102,241,0.10); border: 1px solid rgba(129,140,248,0.45);'
+          : 'background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);');
+      var badgeBase = 'font-family: ' + mono + '; font-size: 11px; padding: 4px 8px; border-radius: 999px; ';
+      var badge = badgeBase + (st === 'active'
+        ? 'background: #0E7490; color: #ECFEFF;'
+        : st === 'done' ? 'background: rgba(129,140,248,0.2); color: #C7D2FE;' : 'background: rgba(255,255,255,0.06); color: #8F96B8;');
+      return {
+        num: faNum('0' + (i + 1)),
+        label: d.label, tech: d.tech, sees: d.sees,
+        status: st === 'active' ? t.stHolding : st === 'done' ? t.stDone : t.stWaiting,
+        cardStyle: card, badgeStyle: badge,
+        pick: function () { self.setState({ step: i + 1 }); }
+      };
+    });
+    var pName = ['Meshtastic', 'ESP32', 'Semtech LoRa', 'BLE 5.0', 'GitHub', 'STARLINK'];
+    var pStyle = [
+      "font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: #F1F2F8",
+      "font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 500; color: #F1F2F8",
+      "font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: 0.02em; color: #F1F2F8",
+      "font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; color: #F1F2F8",
+      "font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700; color: #F1F2F8",
+      "font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; letter-spacing: 0.1em; color: #8F96B8"
+    ];
+    var partners = pName.map(function (n, i) { return { name: n, nameStyle: pStyle[i], role: t.hwRoles[i] }; });
+    var hop = s === 0 ? 0 : s - 1;
+    return {
+      t: t,
+      lang: lang,
+      dir: fa ? 'rtl' : 'ltr',
+      fontFamily: font,
+      monoFont: mono,
+      langBtnFont: fa ? "'Inter', sans-serif" : "'Vazirmatn', sans-serif",
+      headTrack: fa ? '0' : '-0.03em',
+      headLine: fa ? '1.35' : '1.05',
+      trackDir: fa ? '270deg' : '90deg',
+      metrics: [
+        { value: t.m1v, label: t.m1l },
+        { value: t.m2v, label: t.m2l },
+        { value: t.m3v, label: t.m3l }
+      ],
+      partners: partners,
+      nodes: nodes,
+      hopNow: hop,
+      hopLine: t.hop + ' ' + faNum(hop) + ' / ' + faNum(7) + ' · TTL ' + faNum(7 - hop),
+      stageLabel: t.stages[s],
+      caption: t.captions[s],
+      progressW: (s === 0 ? 0 : (s / 4) * 100) + '%',
+      primaryLabel: s === 0 ? t.btnSend : (s < 4 ? t.btnNext : t.btnReplay),
+      advance: function () { self.setState({ step: s >= 4 ? 1 : s + 1 }); },
+      reset: function () { self.setState({ step: 0 }); },
+      toggleLang: function () { self.setState({ lang: fa ? 'en' : 'fa' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
